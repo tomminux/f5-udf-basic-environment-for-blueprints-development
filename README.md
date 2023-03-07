@@ -63,7 +63,7 @@ Disk Size: 105 GiB
 Internal -> 10.1.10.6
 ````
 
-### infra-server Ubuntu Server
+### k3s-server Ubuntu Server
 
 - Add a new Ubuntu 20.04 LTS Server
 
@@ -88,7 +88,7 @@ Internal -> 10.1.20.7
 Connect via ssh to infra-server and execute the first init-script
 
 ````
-git clone https://github.com/tomminux/f5-udf-infra-server.git
+git clone https://github.com/tomminux/f5-udf-basic-environment-for-blueprints-development.git
 
 cd f5-udf-infra-server/
 bash init-scripts/1.infra-server.sh
@@ -104,7 +104,7 @@ sudo reboot
 
 ### Self-signed Certificate for the Private Registry
 
-In order to correctly access the docker private registry with HTTPS, we need to initialize a new self-signed certificate:
+In order to 1orrectly access the docker private registry with HTTPS, we need to initialize a new self-signed certificate:
 
 ````
 cd ~/f5-udf-infra-server/ansible/playbooks/files/docker-files/
