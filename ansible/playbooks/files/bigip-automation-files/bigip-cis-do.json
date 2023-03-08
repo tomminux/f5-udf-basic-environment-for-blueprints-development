@@ -63,7 +63,7 @@
         "k3s-cluster": {
             "class": "Route",
             "gw": "10.1.20.1",
-            "network": "10.1.1.4/32",
+            "network": "10.1.1.7/32",
             "mtu": 1500
         },
         "default": {

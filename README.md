@@ -191,7 +191,7 @@ The k3s installation on infra-server is going to:
 
 ````
 cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/
-ansible-playbook playbooks/install-infra-server-k3s.yaml
+ansible-playbook playbooks/OPTIONAL-install-infra-server-k3s.yaml
 ````
 
 After a good exit status of this Ansible playbook, in order to execute the "k9s" command you shoud logout and re-login to infra-server
@@ -210,6 +210,12 @@ On k3s-server execute the following procedure:
     exit
     exit
 
+On infra server, execute the following playbook
+
+````
+cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/
+ansible-playbook playbooks/install-k3s-server-k3s.yaml
+````
 
 ## BIG-IP bigip-cis Onboarding and Configuration
 
@@ -242,10 +248,15 @@ Connect to the TMUI and enable BGP for route domain 0
 Connect to the web console of BIG-IP and configure BGP to talk to k3s cluster's Calico:
 
 ````
+imish
+
+ena
+conf t
+
 router bgp 64512
 neighbor calico-k3s peer-group
 neighbor calico-k3s remote-as 64512
-neighbor 10.1.1.4 peer-group calico-k3s 
+neighbor 10.1.1.7 peer-group calico-k3s 
 wr
 end
 ````
@@ -256,20 +267,3 @@ Verify BGP is working with k3s, diplaying routes and BGP Neighbors
 show ip route
 show bgp neighbors
 ````
-
-### infra-server / CIS: UDF Services
-
-We are now going to deploy some UDF Service in the k3s cluster:  
-
-- ELK
-- Gitlab
-- Grafana
-- Prometheus
-- The Firefox Browser
-
-````
-cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/
-ansible-playbook playbooks/install-infra-server-udf-services.yaml
-````
-
-These services will be publish in UDF through CIS Declaration via AS3 and made available to the user in the Access Methods of BIG-IP

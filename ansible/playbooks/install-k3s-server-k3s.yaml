@@ -46,6 +46,15 @@
         pkg:
         - nfs-client
 
+    - name: Restart the server
+      reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: whoami
+
     ## ..:: Installing K3s ::..
     ## ------------------------------------------------------------------------
 
@@ -63,15 +72,37 @@
         owner: ubuntu
         group: ubuntu
 
-    - name: Creating config-k3s file for ubuntu to access k3s on infra
+    - name: Creating config file for ubuntu to access k3s on infra
       become: true
       become_user: ubuntu
       command: /bin/bash -c "sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config"
 
+    - name: create .kube directory for user ubuntu on infra-server (Ansible controller)
+      local_action:
+        module: file
+        path: /home/ubuntu/.kube
+        state: directory
+        mode: 0755
+        owner: ubuntu
+
+    - name: copy .kube/config to user's kube config for user ubuntu on infra-server (Ansible controller)
+      fetch:
+        src: /home/ubuntu/.kube/config
+        dest: /home/ubuntu/.kube/config
+        flat: yes
+
+    - name: Configure .kube/config on infra-server to access k3s-server
+      local_action:
+        module: lineinfile
+        dest: /home/ubuntu/.kube/config
+        regexp: '127.0.0.1' 
+        line: '    server: https://{{ ansible_host }}:6443'
+        backrefs: yes
+
     ## Installing CALICO Overlay network 
     - name: Downloading -Calico- Manifest file
       get_url:
-        url: https://docs.projectcalico.org/manifests/calico.yaml
+        url: https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
         dest: /home/ubuntu/calico-k3s.yaml
         mode: '0644'
 
@@ -92,7 +123,7 @@
     - name: Apply Calico Overlay Networking Configuration
       become: true
       become_user: ubuntu
-      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config-k3s ; kubectl apply -f ~/calico-k3s.yaml"
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config ; kubectl apply -f ~/calico-k3s.yaml"
 
     ## Configuring CALICO for BGP with BIG-IP
     - name: Creating /etc/calico directory
@@ -103,7 +134,7 @@
     - name: Downloading calicoctl executable installation file 
       get_url:
         url: https://github.com/projectcalico/calico/releases/download/v3.25.0/calicoctl-linux-amd64
-        dest: /usr/local/bin
+        dest: /usr/local/bin/calicoctl
         mode: '0755'
  
     - name: Copy calico configuration files  
