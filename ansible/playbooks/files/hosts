@@ -13,43 +13,39 @@ ff02::3 ip6-allhosts
 
 10.1.1.4        infra-server-mgmt.f5-udf.com        infra-server-mgmt
 10.1.1.4        infra-server.f5-udf.com             infra-server
-10.1.1.10       nginx-plus-1-mgmt.f5-udf.com        nginx-plus-1
-10.1.1.11       nginx-plus-2-mgmt.f5-udf.com        nginx-plus-2
-10.1.1.13       rancher-server-mgmt.f5-udf.com      rancher-server-mgmt
+10.1.1.5        bigip-cis-mgmt.f5-udf.com           bigip-cis-mgmt
+10.1.1.6	    f5-xc-node.f5-udf.com	            f5-xc-node
+10.1.1.7        k3s-server-mgmt.f5-udf.com          k3s-server-mgmt
 
 ## ..:: Internal Network ::..
 ## ----------------------------------------------------------------------------
 
-10.1.20.10      nginx-plus-1-node.f5-udf.com        nginx-plus-1
-10.1.20.11      nginx-plus-2-node.f5-udf.com        nginx-plus-2
-10.1.20.20      infra-server-host.f5-udf.com        infra-server-host
+10.1.20.4       infra-server-host.f5-udf.com        infra-server-host
+10.1.20.5       bigip-cis-internal.f5-udf.com       bigip-cis-internal
 10.1.20.30      registry.f5-udf.com                 registry
-10.1.20.40      n-controller-host.f5-udf.com        n-controller
-10.1.20.40      psql-server.f5-udf.com              psql-server
-10.1.20.50      rancher-server-host.f5-udf.com      rancher-server-host
+10.1.20.60	    k3s-server.f5-udf.com               k3s-server
+10.1.20.100     coder-server.f5-udf.com             coder-server
 
 ## ..:: External Network ::..
 ## ----------------------------------------------------------------------------
 
-10.1.10.10      nginx-plus-1.f5-udf.com             nginx-plus-1
-10.1.10.11      nginx-plus-2.f5-udf.com             nginx-plus-2
-10.1.10.101     hackazon.f5-udf.com                 hackazon
-10.1.10.101     hackazon-nap.f5-udf.com             hackazon-nap
-10.1.10.101     ec-online-boutique.f5-udf.com       ec-online-boutique
-10.1.10.102     wp-c1.f5-udf.com                    wp-c1
-10.1.10.102     wp-c2.f5-udf.com                    wp-c2
-10.1.10.103     online-boutique.f5-udf.com          online-boutique
-10.1.10.104     www.arcadia-finance.io
-10.1.10.105     shop.f5-udf.com
-10.1.10.106     online-boutique-am.f5-udf.com
-10.1.10.107     nap-online-boutique.f5-udf.com
-10.1.10.201     gitlab.f5-udf.com                   gitlab
-10.1.10.202     grafana.f5-udf.com                  grafana
-10.1.10.203     prometheus.f5-udf.com               prometheus
-10.1.10.204     n-controller.f5-udf.com             n-controller
-10.1.10.205     rancher-server.f5-udf.com           rancher-server
-10.1.10.206     prometheus-k8s.f5-udf.com           prometheus-k8s
-10.1.10.207     elk.f5-udf.com                      elk
-10.1.10.208     am-dashboard.f5-udf.com             am-dashboard
-10.1.10.209     firefox.f5-udf.com                  firefox
-10.1.10.210     am-grafana.f5-udf.com               am-grafana
+10.1.10.100     100.f5-udf.com
+10.1.10.101     101.f5-udf.com
+10.1.10.102     102.f5-udf.com
+10.1.10.103     103.f5-udf.com
+10.1.10.104     104.f5-udf.com
+10.1.10.105     105.f5-udf.com
+10.1.10.106     106.f5-udf.com
+10.1.10.107     107.f5-udf.com
+10.1.10.108     108.f5-udf.com
+10.1.10.109     109.f5-udf.com
+10.1.10.200     200.f5-udf.com
+10.1.10.201     201.f5-udf.com
+10.1.10.202     202.f5-udf.com
+10.1.10.203     203.f5-udf.com
+10.1.10.204     204.f5-udf.com
+10.1.10.205     205.f5-udf.com
+10.1.10.206     206.f5-udf.com
+10.1.10.207     207.f5-udf.com
+10.1.10.208     208.f5-udf.com
+10.1.10.209     209.f5-udf.com

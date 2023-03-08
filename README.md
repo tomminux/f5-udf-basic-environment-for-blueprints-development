@@ -102,9 +102,23 @@ bash init-scripts/2.infra-server-postReboot.sh
 sudo reboot
 ````
 
+### Add an Access Method to UDF Deployment for Coder Server
+
+In the UDF Deployment, create an Access Method with this profile:
+
+````
+Label: Coder Server
+Protocol: HTTPS
+Instance Address: 10.1.20.100
+Instance Port: 8080
+No SSL, No Unauthenticated, No Path
+````
+
+With that method, you can access Visual Studio Code running inside infra-server: from there, it is super easy to modify files online. 
+
 ### Self-signed Certificate for the Private Registry
 
-In order to 1orrectly access the docker private registry with HTTPS, we need to initialize a new self-signed certificate:
+In order to correctly access the docker private registry with HTTPS, we need to initialize a new self-signed certificate:
 
 ````
 cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/playbooks/files/docker-files/
