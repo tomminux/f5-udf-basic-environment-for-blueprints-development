@@ -1,0 +1,294 @@
+## ..:: NGINX ConfigMap for k8s-bigip-ctlr (AS3) ::..
+## ----------------------------------------------------------------------------
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: f5-to-udf-services
+  namespace: udf-services
+  labels:
+    f5type: virtual-server
+    as3: "true"
+data:
+  template: |
+    {
+        "class": "AS3",
+        "declaration": {
+            "class": "ADC",
+            "schemaVersion": "3.13.0",
+            "id": "udf-services",
+            "label": "UDF-Services",
+            "remark": "UDF Service running in k3s",
+            "udf-services": {
+                "class": "Tenant",
+                "gitlab": {
+                    "class": "Application",
+                    "template": "generic",
+                    "gitlab-443-vs": {
+                        "class": "Service_HTTPS",
+                        "remark": "gitlab-443",
+                        "serverTLS": "default_tls",
+                        "redirect80": false,
+                        "virtualAddresses": [
+                            "10.1.10.201"
+                        ],
+                        "pool": "gitlab-pool-80"
+                    },
+                    "default_tls": {
+                        "class": "TLS_Server",
+                        "label": "Using ClientSSL BIG-IP Default Self-Signed Certificate",
+                        "certificates": [
+                          {
+                              "certificate": "default_tls_cert"
+                          }
+                        ]
+                    },
+                    "default_tls_cert": {
+                        "class": "Certificate",
+                        "certificate": {"bigip":"/Common/default.crt"},
+                        "privateKey": {"bigip":"/Common/default.key"}
+                    },
+                    "gitlab-80-vs": {
+                        "class": "Service_HTTP",
+                        "remark": "gitlab-80",
+                        "virtualPort": 80,
+                        "virtualAddresses": [
+                            "10.1.10.201"
+                        ],
+                        "pool": "gitlab-pool-80"
+                    },
+                    "gitlab-22-vs": {
+                        "class": "Service_TCP",
+                        "remark": "gitlab-22",
+                        "virtualPort": 22,
+                        "virtualAddresses": [
+                            "10.1.10.201"
+                        ],
+                        "virtualPort": 22,
+                        "pool": "gitlab-pool-22"
+                    },
+                    "gitlab-pool-22": {
+                        "class": "Pool",
+                        "monitors": [
+                            "tcp"
+                        ],
+                        "members": [
+                            {
+                                "servicePort": 22,
+                                "serverAddresses": []
+                            }
+                        ]
+                    },
+                    "gitlab-pool-80": {
+                        "class": "Pool",
+                        "monitors": [
+                            "http"
+                        ],
+                        "members": [
+                            {
+                                "servicePort": 80,
+                                "serverAddresses": []
+                            }
+                        ]
+                    }
+                },
+                "elk": {
+                    "class": "Application",
+                    "template": "generic",
+                    "elk-9200-vs": {
+                        "class": "Service_TCP",
+                        "remark": "elk-9200",
+                        "virtualAddresses": [
+                            "10.1.10.207"
+                        ],
+                        "virtualPort": 9200,
+                        "pool": "elk-pool-9200"
+                    },
+                    "elk-5144-vs": {
+                        "class": "Service_TCP",
+                        "remark": "elk-5144",
+                        "virtualAddresses": [
+                            "10.1.10.207"
+                        ],
+                        "virtualPort": 5144,
+                        "pool": "elk-pool-5144"
+                    },
+                    "elk-443-vs": {
+                        "class": "Service_HTTPS",
+                        "remark": "elk-443",
+                        "serverTLS": "default_tls",
+                        "virtualAddresses": [
+                            "10.1.10.207"
+                        ],
+                        "pool": "elk-pool-5601"
+                    },
+                    "default_tls": {
+                        "class": "TLS_Server",
+                        "label": "Using ClientSSL BIG-IP Default Self-Signed Certificate",
+                        "certificates": [
+                          {
+                              "certificate": "default_tls_cert"
+                          }
+                        ]
+                    },
+                    "default_tls_cert": {
+                        "class": "Certificate",
+                        "certificate": {"bigip":"/Common/default.crt"},
+                        "privateKey": {"bigip":"/Common/default.key"}
+                    },
+                    "elk-pool-5144": {
+                        "class": "Pool",
+                        "monitors": [
+                            "tcp"
+                        ],
+                        "members": [
+                            {
+                                "servicePort": 5144,
+                                "serverAddresses": []
+                            }
+                        ]
+                    },
+                    "elk-pool-9200": {
+                        "class": "Pool",
+                        "monitors": [
+                            "tcp"
+                        ],
+                        "members": [
+                            {
+                                "servicePort": 9200,
+                                "serverAddresses": []
+                            }
+                        ]
+                    },
+                    "elk-pool-5601": {
+                        "class": "Pool",
+                        "monitors": [
+                            "tcp"
+                        ],
+                        "members": [
+                            {
+                                "servicePort": 5601,
+                                "serverAddresses": []
+                            }
+                        ]
+                    }
+                },
+                "grafana": {
+                    "class": "Application",
+                    "template": "generic",
+                    "grafana-443-vs": {
+                        "class": "Service_HTTPS",
+                        "remark": "grafana-443",
+                        "serverTLS": "default_tls",
+                        "virtualAddresses": [
+                            "10.1.10.202"
+                        ],
+                        "pool": "grafana-pool-3000"
+                    },
+                    "default_tls": {
+                        "class": "TLS_Server",
+                        "label": "Using ClientSSL BIG-IP Default Self-Signed Certificate",
+                        "certificates": [
+                          {
+                              "certificate": "default_tls_cert"
+                          }
+                        ]
+                    },
+                    "default_tls_cert": {
+                        "class": "Certificate",
+                        "certificate": {"bigip":"/Common/default.crt"},
+                        "privateKey": {"bigip":"/Common/default.key"}
+                    },
+                    "grafana-pool-3000": {
+                        "class": "Pool",
+                        "monitors": [
+                            "http"
+                        ],
+                        "members": [
+                            {
+                                "servicePort": 3000,
+                                "serverAddresses": []
+                            }
+                        ]
+                    }
+                },
+                "prometheus-k3s": {
+                    "class": "Application",
+                    "template": "generic",
+                    "prometheus-443-vs": {
+                        "class": "Service_HTTPS",
+                        "remark": "prometheus-k3",
+                        "serverTLS": "default_tls",
+                        "virtualAddresses": [
+                            "10.1.10.203"
+                        ],
+                        "pool": "prometheus-pool-9090"
+                    },
+                    "default_tls": {
+                        "class": "TLS_Server",
+                        "label": "Using ClientSSL BIG-IP Default Self-Signed Certificate",
+                        "certificates": [
+                          {
+                              "certificate": "default_tls_cert"
+                          }
+                        ]
+                    },
+                    "default_tls_cert": {
+                        "class": "Certificate",
+                        "certificate": {"bigip":"/Common/default.crt"},
+                        "privateKey": {"bigip":"/Common/default.key"}
+                    },
+                    "prometheus-pool-9090": {
+                        "class": "Pool",
+                        "monitors": [
+                            "http"
+                        ],
+                        "members": [
+                            {
+                                "servicePort": 9090,
+                                "serverAddresses": []
+                            }
+                        ]
+                    }
+                },                            
+                "firefox": {
+                    "class": "Application",
+                    "template": "generic",
+                    "firefox-443-vs": {
+                        "class": "Service_HTTPS",
+                        "remark": "firefox-k3",
+                        "serverTLS": "default_tls",
+                        "virtualAddresses": [
+                            "10.1.10.209"
+                        ],
+                        "pool": "firefox-pool-5800"
+                    },
+                    "default_tls": {
+                        "class": "TLS_Server",
+                        "label": "Using ClientSSL BIG-IP Default Self-Signed Certificate",
+                        "certificates": [
+                          {
+                              "certificate": "default_tls_cert"
+                          }
+                        ]
+                    },
+                    "default_tls_cert": {
+                        "class": "Certificate",
+                        "certificate": {"bigip":"/Common/default.crt"},
+                        "privateKey": {"bigip":"/Common/default.key"}
+                    },
+                    "firefox-pool-5800": {
+                        "class": "Pool",
+                        "monitors": [
+                            "http"
+                        ],
+                        "members": [
+                            {
+                                "servicePort": 5800,
+                                "serverAddresses": []
+                            }
+                        ]
+                    }
+                }                            
+            }
+        }
+    }

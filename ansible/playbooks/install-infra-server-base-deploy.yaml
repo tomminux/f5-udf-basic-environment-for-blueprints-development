@@ -1,0 +1,119 @@
+## ----------------------------------------------------------------------------
+## ..:: infra-server installation ::..
+## ----------------------------------------------------------------------------
+
+- hosts: infra-server
+  remote_user: root
+  tasks:
+
+    - name: Upgrading all packages to the latest version
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Copy hosts file
+      copy:
+        src: hosts
+        dest: /etc/hosts
+
+    - name: Set timezone to Europe/Rome
+      timezone:
+        name: Europe/Rome
+
+    ## ..:: Installing a bunch of needed software ::..
+    ## ------------------------------------------------------------------------
+    - name: Installing needed software
+      apt:
+        pkg:
+        - apt-transport-https 
+        - ca-certificates 
+        - curl 
+        - software-properties-common
+        - python3-pip
+        - build-essential
+        - nfs-server
+
+    ## ..:: Installing Kubernetes' ..:: kubectl command ::..
+    ## ------------------------------------------------------------------------
+    - name: adding Kubernetes apt-key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: adding Kubernetes' APT repository
+      apt_repository:
+       repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+       state: present
+       filename: 'kubernetes'
+
+    - name: installing kubectl
+      apt:
+        name: kubectl
+        state: present
+        update_cache: true
+
+    ## ..:: INSTALLING TELEGRAF ::..
+    ## ------------------------------------------------------------------------
+    - name: Adding influx apt-key
+      apt_key:
+        url: https://repos.influxdata.com/influxdb.key
+        state: present
+
+    - name: Adding Influx apt reporisotries
+      shell: echo "deb https://repos.influxdata.com/ubuntu `lsb_release -cs` stable\n" > /etc/apt/sources.list.d/influxdb.list
+
+    - name: Upgrading all packages to the latest version
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Installing Telegraf
+      apt:
+        pkg:
+        - telegraf
+
+    - name: Copying Telegraf configuration file
+      template:
+        src: telegraf.conf.j2
+        dest: /etc/telegraf/telegraf.conf
+
+    - name: Restarting Telegraf agent
+      service:
+        name: telegraf
+        state: restarted
+
+    ## ..:: NFS-SERVER CONFIGURATION ::..
+    ## ------------------------------------------------------------------------
+    - name: Creating directory for NFS-Server
+      file:
+        path: /home/ubuntu/dockerhost-storage/nfs-storage
+        state: directory
+        owner: nobody
+        group: nogroup
+
+    - name: Configure NFS Server to export NFS directory
+      lineinfile:
+        path: /etc/exports
+        line: /home/ubuntu/dockerhost-storage/nfs-storage    10.0.0.0/8(rw,sync,no_subtree_check,no_root_squash,no_all_squash,insecure)
+
+    - name: Restart service nfs-server
+      service:
+        name: nfs-server
+        state: restarted
+
+    ## ..:: HELM Installation ::..
+    ## ------------------------------------------------------------------------
+    - name: Add the Apt signing key for Helm repository
+      ansible.builtin.apt_key:
+        url: https://baltocdn.com/helm/signing.asc
+        state: present
+
+    - name: Add Helm repository into sources list
+      ansible.builtin.apt_repository:
+        repo: deb https://baltocdn.com/helm/stable/debian/ all main
+        state: present
+
+    - name: Update repositories cache and install "helm" package
+      apt:
+        name: helm
+        update_cache: yes

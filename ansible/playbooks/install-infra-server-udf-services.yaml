@@ -1,0 +1,120 @@
+## ----------------------------------------------------------------------------
+## ..:: infra-server installation ::..
+## ----------------------------------------------------------------------------
+
+- hosts: infra-server
+  remote_user: root
+  tasks:
+
+    ## ..:: GITLAB dockerhost-storage configuration ::..
+    ## ------------------------------------------------------------------------
+    - name: gitlab Docker storage configuration
+      file:
+        path: /home/ubuntu/dockerhost-storage/gitlab
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+    
+    ## ..:: PROMETHEUS dockerhost-storage configuration ::..
+    ## ------------------------------------------------------------------------
+    - name: prometheus Docker storage configuration
+      file:
+        path: /home/ubuntu/dockerhost-storage/prometheus/{{ item }}
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+      with_items:
+        - config
+        - data
+
+    - name: Copying prometheus config file
+      copy:
+        src: prometheus.yml
+        dest: /home/ubuntu/dockerhost-storage/prometheus/config
+        owner: ubuntu
+        group: ubuntu
+
+    ## ..:: GRAFANA dockerhost-storage configuration ::..
+    ## ------------------------------------------------------------------------
+    - name: grafana Docker storage configuration
+      file:
+        path: /home/ubuntu/dockerhost-storage/grafana
+        state: directory
+        owner: 472
+        group: 472
+
+    ## ..:: ELK dockerhost-storage configuration ::..
+    ## ------------------------------------------------------------------------
+    - name: ELK Docker storage configuration
+      file:
+        path: /home/ubuntu/dockerhost-storage/elk/{{ item }}
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+      with_items:
+        - logstash
+        - logstash/conf.d
+        - elasticsearch
+
+    - name: Copying ELK Logstash configuration file
+      copy:
+        src: docker-files/30-waf-logs-full-logstash.conf
+        dest: /home/ubuntu/dockerhost-storage/elk/logstash/conf.d/
+        owner: ubuntu
+        group: ubuntu
+
+    ## ..:: FIREFOX dockerhost-storage configuration ::..
+    ## ------------------------------------------------------------------------
+    - name: firefox Docker storage configuration
+      file:
+        path: /home/ubuntu/dockerhost-storage/firefox
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    ## Configure and Deploy Services in "udf-services" namespace
+
+    - name: Creating Namepsaces
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config-k3s ; kubectl apply -f ~/k3s-manifests/udf-services/0.namespaces.yaml"
+
+    - name: Deploying BIGIP Controller Common k3s resources
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config-k3s ; kubectl apply -f ~/k3s-manifests/udf-services/1.bigip-ctlr-common.yaml"
+
+    - name: Deploying BIGIP Controller POD
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config-k3s ; kubectl apply -f ~/k3s-manifests/udf-services/2.bigip-ctlr-deployment.yaml"
+
+    - name: Deploying GITLAB k3s POD and Services
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config-k3s ; kubectl apply -f ~/k3s-manifests/udf-services/3.gitlab.yaml"
+
+    - name: Deploying GRAFANA k3s POD and Services
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config-k3s ; kubectl apply -f ~/k3s-manifests/udf-services/4.grafana.yaml"
+
+    - name: Deploying PROMETHEUS k3s POD and Services
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config-k3s ; kubectl apply -f ~/k3s-manifests/udf-services/5.prometheus.yaml"
+
+    - name: Deploying ELK k3s POD and Services
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config-k3s ; kubectl apply -f ~/k3s-manifests/udf-services/6.elk.yaml"
+
+    - name: Deploying FIREFOX k3s POD and Services
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config-k3s ; kubectl apply -f ~/k3s-manifests/udf-services/7.firefox.yaml"
+
+    - name: Deploying BIGIP Controller ConfigMap with AS3 Payload
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config-k3s ; kubectl apply -f ~/k3s-manifests/udf-services/9.bigip-ctlr-configMap.yaml"

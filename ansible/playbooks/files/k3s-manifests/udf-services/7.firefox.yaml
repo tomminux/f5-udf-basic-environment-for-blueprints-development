@@ -1,0 +1,64 @@
+## ----------------------------------------------------------------------------
+## ..:: Firefox POD / Deployment ::..
+## -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firefox
+  namespace: udf-services
+  labels:
+    app: firefox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: firefox
+  template:
+    metadata:
+      labels:
+        app: firefox
+    spec:
+      containers:
+      - image: jlesage/firefox:latest
+        imagePullPolicy: IfNotPresent
+        name: firefox
+        env:
+        - name: DISPLAY_HEIGHT
+          value: "1020"
+        ports:
+        - containerPort: 5800
+          protocol: TCP
+        volumeMounts:
+        - name: firefox-persistent-storage
+          mountPath: /config
+        - name: firefox-shared-memory
+          mountPath: /dev/shm
+      volumes:
+        - name: firefox-persistent-storage
+          hostPath:
+            path: /home/ubuntu/dockerhost-storage/firefox
+        - name: firefox-shared-memory
+          emptyDir:
+            medium: Memory        
+---
+## ----------------------------------------------------------------------------
+## ..:: Firefox POD / Service Configuration ::..
+##-----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: firefox
+  namespace: udf-services
+  labels:
+    app: firefox
+    cis.f5.com/as3-tenant: udf-services
+    cis.f5.com/as3-app: firefox
+    cis.f5.com/as3-pool: firefox-pool-5800
+spec:
+  type: ClusterIP
+  ports:
+  - name: http-5800
+    port: 5800
+    protocol: TCP
+  selector:
+      app: firefox

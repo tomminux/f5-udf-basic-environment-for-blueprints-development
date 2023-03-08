@@ -1,0 +1,60 @@
+## ----------------------------------------------------------------------------
+## ..:: Grafana POD / Deployment ::..
+## -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: udf-services
+  labels:
+    app: grafana
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: grafana
+        version: v1
+    spec:
+      containers:
+      - env:
+        image: grafana/grafana:latest
+        imagePullPolicy: IfNotPresent
+        name: grafana
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        volumeMounts:
+        - name: grafana-persistent-storage
+          mountPath: /var/lib/grafana
+      volumes:
+        - name: grafana-persistent-storage
+          hostPath:
+            path: /home/ubuntu/dockerhost-storage/grafana
+---
+## ----------------------------------------------------------------------------
+## ..:: Grafana POD / Service Configuration ::..
+##-----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-3000
+  namespace: udf-services
+  labels:
+    app: grafana
+    cis.f5.com/as3-tenant: udf-services
+    cis.f5.com/as3-app: grafana
+    cis.f5.com/as3-pool: grafana-pool-3000
+spec:
+  type: ClusterIP
+  ports:
+  - name: grafana-http-3000
+    port: 3000
+    protocol: TCP
+  selector:
+      app: grafana

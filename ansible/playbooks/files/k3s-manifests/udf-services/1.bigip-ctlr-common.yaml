@@ -1,0 +1,211 @@
+## ----------------------------------------------------------------------------
+## ..:: BIG-IP CIS - Service Account ::..
+## ----------------------------------------------------------------------------
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8s-bigip-ctlr
+  namespace: ingress-services
+---
+## ----------------------------------------------------------------------------
+## ..:: BIG-IP CIS - Cluster Role Binding ::..
+## ----------------------------------------------------------------------------
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8s-bigip-ctlr-clusteradmin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: k8s-bigip-ctlr
+    namespace: ingress-services
+---
+## ----------------------------------------------------------------------------
+## ..:: BIG-IP CIS - VS Custom Resource Definition ::..
+## ----------------------------------------------------------------------------
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: virtualservers.cis.f5.com
+spec:
+  group: cis.f5.com
+  names:
+    kind: VirtualServer
+    plural: virtualservers
+    shortNames:
+      - vs
+    singular: virtualserver
+  scope: Namespaced
+  versions:
+    -
+      name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                host:
+                  type: string
+                  pattern: '^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$'
+                httpTraffic:
+                  type: string
+                snat:
+                  type: string
+                tlsProfileName:
+                  type: string
+                appRootRewrite:
+                  type: string
+                  pattern: '^\/([A-z0-9-_+]+\/)*([A-z0-9]+\/?)*$'
+                waf:
+                  type: string
+                  pattern: '^\/([A-z0-9-_+]+\/)*([A-z0-9]+\/?)*$'
+                pools:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      path:
+                        type: string
+                        pattern: '^\/([A-z0-9-_+]+\/)*([A-z0-9]+\/?)*$'
+                      service:
+                        type: string
+                        pattern: '^([A-z0-9-_+])*([A-z0-9])$'
+                      nodeMemberLabel:
+                        type: string
+                        pattern: '^[a-zA-Z0-9][-A-Za-z0-9_.]{0,61}[a-zA-Z0-9]=[a-zA-Z0-9][-A-Za-z0-9_.]{0,61}[a-zA-Z0-9]$'
+                      servicePort:
+                        type: integer
+                        minimum: 1
+                        maximum: 65535
+                      rewrite:
+                        type: string
+                        pattern: '^\/([A-z0-9-_+]+\/)*([A-z0-9]+\/?)*$'
+                      monitor:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            enum: [http, https]
+                          send:
+                            type: string
+                          recv:
+                            type: string
+                          interval:
+                            type: integer
+                          timeout:
+                            type: integer
+                        required:
+                          - type
+                          - send
+                          - interval
+                virtualServerAddress:
+                  type: string
+                  pattern: '^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$'
+                virtualServerName:
+                  type: string
+                  pattern: '^([A-z0-9-_+])*([A-z0-9])$'
+                virtualServerHTTPPort:
+                  type: integer
+                  minimum: 1
+                  maximum: 65535
+                virtualServerHTTPSPort:
+                  type: integer
+                  minimum: 1
+                  maximum: 65535
+              required:
+                - virtualServerAddress
+---
+## ----------------------------------------------------------------------------
+## ..:: BIG-IP CIS - TLS Profile Custom Resource Definition ::..
+## ----------------------------------------------------------------------------
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: tlsprofiles.cis.f5.com
+spec:
+  group: cis.f5.com
+  names:
+    kind: TLSProfile
+    plural: tlsprofiles
+    shortNames:
+      - tls
+    singular: tlsprofile
+  scope: Namespaced
+  versions:
+    -
+      name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                hosts:
+                  type: array
+                  items:
+                    type: string
+                    pattern: '^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$'
+                tls:
+                  type: object
+                  properties:
+                    termination:
+                      type: string
+                      enum: [edge, reencrypt, passthrough]
+                    clientSSL:
+                      type: string
+                    serverSSL:
+                      type: string
+                    reference:
+                      type: string
+                  required:
+                    - clientSSL
+---
+## ----------------------------------------------------------------------------
+## ..:: BIG-IP CIS - Cluster Role ::..
+## ----------------------------------------------------------------------------
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: bigip-ctlr-clusterrole
+rules:
+  - apiGroups: ["", "extensions"]
+    resources: ["nodes", "services", "endpoints", "namespaces", "ingresses", "pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["", "extensions"]
+    resources: ["configmaps", "events", "ingresses/status"]
+    verbs: ["get", "list", "watch", "update", "create", "patch"]
+  - apiGroups: ["cis.f5.com"]
+    resources: ["virtualservers", "tlsprofiles", "transportservers"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["", "extensions"]
+    resources: ["secrets"]
+    resourceNames: ["<secret-containing-bigip-login>"]
+    verbs: ["get", "list", "watch"]
+---
+## ----------------------------------------------------------------------------
+## ..:: BIG-IP CIS - Cluster Role Binding ::..
+## ----------------------------------------------------------------------------
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: bigip-ctlr-clusterrole-binding
+  namespace: ingress-services
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: bigip-ctlr-clusterrole
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: bigip-ctlr
+    namespace: ingress-services

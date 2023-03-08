@@ -1,0 +1,42 @@
+## ----------------------------------------------------------------------------
+## ..:: infra-server installation ::..
+## ----------------------------------------------------------------------------
+
+- hosts: infra-server
+  remote_user: root
+  tasks:
+
+    ## ..:: F5-CLI ::..
+    ## ------------------------------------------------------------------------
+
+    - name: F5 CLI Docker storage configuration - f5-cli
+      file:
+        path: /home/ubuntu/dockerhost-storage/f5-cli/f5-cli/{{ item }}
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+      with_items:
+        - do
+        - as3
+        - ts
+
+    - name: Copying do onboarding file for BIG-IP Security
+      copy:
+        src: bigip-automation-files/bigip-cis-do.json
+        dest: /home/ubuntu/dockerhost-storage/f5-cli/f5-cli/do
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+
+    - name: F5 CLI Docker storage configuration - .f5_cli
+      file:
+        path: /home/ubuntu/dockerhost-storage/f5-cli/.f5_cli
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Creating alias runf5cli
+      lineinfile:
+        path: /home/ubuntu/.bashrc
+        line: alias runf5cli='docker run --rm -it -v /home/ubuntu/dockerhost-storage/f5-cli/.f5_cli:/root/.f5_cli -v /home/ubuntu/dockerhost-storage/f5-cli/f5-cli/:/f5-cli f5devcentral/f5-cli:latest'
+

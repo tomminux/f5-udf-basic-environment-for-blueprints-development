@@ -1,0 +1,67 @@
+## ----------------------------------------------------------------------------
+## ..:: infra-server installation ::..
+## ----------------------------------------------------------------------------
+
+- hosts: infra-server
+  remote_user: root
+  tasks:
+
+    ## ..:: Docker reconfiguation to talk to private registry ::..
+    ## ----------------------------------------------------------------------------
+
+    - name: Configure Docker to use a self signed certificate with local Registry
+      lineinfile: 
+        dest: /lib/systemd/system/docker.service
+        regexp: '^ExecStart' 
+        line: 'ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --insecure-registry registry.f5-udf.com:5000'
+        backrefs: yes
+
+    - name: Restart service Docker - Reload files
+      command: systemctl daemon-reload
+
+    - name: Restart service Docker
+      service:
+        name: docker
+        state: restarted
+
+    ## ..:: Private Registry ::..
+    ## ----------------------------------------------------------------------------
+
+    - name: Registry Docker storage configuration - ca-certificates
+      file:
+        path: /home/ubuntu/dockerhost-storage/registry/ca-certificates
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Registry Docker storage configuration - var-lib-registry
+      file:
+        path: /home/ubuntu/dockerhost-storage/registry/var-lib-registry
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Copying registry certificate and key
+      copy:
+        src: docker-files/registry.{{ item }}
+        dest: /home/ubuntu/dockerhost-storage/registry/ca-certificates/
+        owner: ubuntu
+        group: ubuntu
+      with_items:
+        - key
+        - crt    
+
+    ## Docker Registry startup file
+    - name: Copying Docker startup file on ubuntu home dir 
+      copy:
+        src: docker-files/startRegistry.sh
+        dest: /home/ubuntu/startRegistry.sh
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    ## Starting Docker Containers
+    - name: Starting Docker Containers
+      become: yes
+      become_user: ubuntu
+      command: /home/ubuntu/startRegistry.sh

@@ -1,0 +1,123 @@
+## ----------------------------------------------------------------------------
+## ..:: GITLAB ClusterIP Service - Port 80 -> 80 ::..
+## ----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-80
+  namespace: udf-services
+  labels:
+    app: gitlab
+    cis.f5.com/as3-tenant: udf-services
+    cis.f5.com/as3-app: gitlab
+    cis.f5.com/as3-pool: gitlab-pool-80
+spec:
+  type: ClusterIP
+  ports:
+  - name: http-80
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: gitlab
+---
+## ----------------------------------------------------------------------------
+## ..:: GITLAB ClusterIP Service - Port 5050 ::..
+## ----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-5050
+  namespace: udf-services
+  labels:
+    app: gitlab
+spec:
+  type: ClusterIP
+  ports:
+  - name: http-reg
+    port: 5050
+    targetPort: 5050
+    protocol: TCP
+  selector:
+    app: gitlab
+---
+## ----------------------------------------------------------------------------
+## ..:: GITLAB ClusterIP Service - Port 22 ::..
+## ----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-22
+  namespace: udf-services
+  labels:
+    app: gitlab
+    cis.f5.com/as3-tenant: udf-services
+    cis.f5.com/as3-app: gitlab
+    cis.f5.com/as3-pool: gitlab-pool-22
+spec:
+  type: ClusterIP
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22
+    protocol: TCP
+  selector:
+    app: gitlab
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: udf-services
+  name: gitlab
+  labels:
+    app: gitlab
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: gitlab
+  template:
+    metadata:
+      labels:
+        app: gitlab
+    spec:
+      containers:
+        - name: gitlab
+          image: gitlab/gitlab-ce:latest
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/gitlab
+            - name: logs-volume
+              mountPath: /var/log/gitlab
+            - name: data-volume
+              mountPath: /var/opt/gitlab
+            - name: reg-volume
+              mountPath: /var/opt/gitlab/gitlab-rails/shared/registry
+            - name: uploads-volume
+              mountPath: /var/opt/gitlab/gitlab-rails/uploads
+          ports:
+            - name: http-web
+              containerPort: 80
+            - name: ssh
+              containerPort: 22
+            - name: http-reg
+              containerPort: 5050
+      volumes:
+        - name: config-volume
+          hostPath:
+            path: /home/ubuntu/dockerhost-storage/gitlab/config
+        - name: logs-volume
+          hostPath:
+            path: /home/ubuntu/dockerhost-storage/gitlab/logs
+        - name: data-volume
+          hostPath:
+            path: /home/ubuntu/dockerhost-storage/gitlab/data
+        - name: reg-volume
+          hostPath:
+            path: /home/ubuntu/dockerhost-storage/gitlab/reg
+        - name: uploads-volume
+          hostPath:
+            path: /home/ubuntu/dockerhost-storage/gitlab/uploads

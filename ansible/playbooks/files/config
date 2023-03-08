@@ -1,0 +1,31 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: <PUT HERE YOUR K3S CERTIFICATE AUTHORITY DATA>
+    server: https://127.0.0.1:6443
+  name: k3s
+- cluster:
+    certificate-authority-data: <PUT HERE YOUR K8S CERTIFICATE AUTHORITY DATA>
+    server: https://10.1.20.60:6443
+  name: k8s
+contexts:
+- context:
+    cluster: k3s
+    user: k3s-admin
+  name: k3s
+- context:
+    cluster: k8s
+    user: k8s-admin
+  name: k8s
+current-context: k8s
+kind: Config
+preferences: {}
+users:
+- name: k3s-admin
+  user:
+    client-certificate-data: <PUT HERE YOUR K3S CLIENT CERTIFICATE DATA>
+    client-key-data: <PUT HERE YOUR K3S CLIENT KEY DATA>
+- name: k8s-admin
+  user:
+    client-certificate-data: <PUT HERE YOUR K8S CLIENT CERTIFICATE DATA>
+    client-key-data: <PUT HERE YOUR K8S CLIENT KEY DATA>
