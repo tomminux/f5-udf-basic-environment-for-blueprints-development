@@ -90,14 +90,14 @@ Connect via ssh to infra-server and execute the first init-script
 ````
 git clone https://github.com/tomminux/f5-udf-basic-environment-for-blueprints-development.git
 
-cd f5-udf-infra-server/
+cd f5-udf-basic-environment-for-blueprints-development/
 bash init-scripts/1.infra-server.sh
 ````
 
 After the reboot, execute the second script
 
 ````
-cd f5-udf-infra-server/
+cd f5-udf-basic-environment-for-blueprints-development/
 bash init-scripts/2.infra-server-postReboot.sh
 sudo reboot
 ````
@@ -107,7 +107,7 @@ sudo reboot
 In order to 1orrectly access the docker private registry with HTTPS, we need to initialize a new self-signed certificate:
 
 ````
-cd ~/f5-udf-infra-server/ansible/playbooks/files/docker-files/
+cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/playbooks/files/docker-files/
 openssl req -addext "subjectAltName = DNS:registry.f5-udf.com" -newkey rsa:4096 -nodes -sha256 -keyout registry.key -x509 -days 3650 -out registry.crt
 ````
 
