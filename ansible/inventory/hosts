@@ -7,3 +7,8 @@ ansible_python_interpreter=/usr/bin/python3
 [bigip_nodes]
 bigip-security ansible_host=10.1.1.5 bgp_peer_self_ip=10.1.20.5
 
+[k3s_server]
+k3s-server ansible_host=10.1.1.7 secondNetIf_name=ens4 secondNetIf_ip=10.1.20.60 hostname=k3s-server
+
+[k3s_server:vars]
+ansible_python_interpreter=/usr/bin/python3

@@ -134,11 +134,10 @@ The basic deployment on infra-server is going to:
 - copy hosts file 
 - Install a bunch of needed software
 - Install the kubectl command
-- Install the Telegraf component
 - Install the HELM package management system
 
 ````
-cd ~/f5-udf-infra-server/ansible/
+cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/
 ansible-playbook playbooks/install-infra-server-base-deploy.yaml
 ````
 
@@ -150,7 +149,7 @@ The F5 CLI Installation on infra-server is going to:
 - Create necessary aliases
 
 ````
-cd ~/f5-udf-infra-server/ansible/
+cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/
 ansible-playbook playbooks/install-infra-server-f5-cli.yaml
 ````
 
@@ -163,7 +162,7 @@ The docker private server installation on infra-server is going to:
 - Start the docker registry container
 
 ````
-cd ~/f5-udf-infra-server/ansible/
+cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/
 ansible-playbook playbooks/install-infra-server-registry.yaml
 ````
 
@@ -175,13 +174,13 @@ The k9s installation on infra-server is going to:
 - Install k9s via Brew. 
 
 ````
-cd ~/f5-udf-infra-server/ansible/
+cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/
 ansible-playbook playbooks/install-infra-server-k9s.yaml
 ````
 
 After a good exit status of this Ansible playbook, in order to execute the "k9s" command you shoud logout and re-login to infra-server
 
-### infra-server: k3s Installation
+### --OPTIONAL-- infra-server: k3s Installation
 
 The k3s installation on infra-server is going to:  
 
@@ -191,11 +190,26 @@ The k3s installation on infra-server is going to:
 - Install the Calico Overlay networking configuring it to use 10.243.0.0/16 network, disabling Traefik and the defaul network policy
 
 ````
-cd ~/f5-udf-infra-server/ansible/
+cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/
 ansible-playbook playbooks/install-infra-server-k3s.yaml
 ````
 
 After a good exit status of this Ansible playbook, in order to execute the "k9s" command you shoud logout and re-login to infra-server
+
+### k3s-server: k3s installation
+
+On infra-server, copy the content of the public key:
+
+    cat ~/.ssh/id_rsa.pub
+
+On k3s-server execute the following procedure:
+
+    echo "<put your public key here>" >> ~/.ssh/authorized_keys
+    sudo su -
+    echo "<put your public key here>" >> ~/.ssh/authorized_keys
+    exit
+    exit
+
 
 ## BIG-IP bigip-cis Onboarding and Configuration
 
@@ -254,7 +268,7 @@ We are now going to deploy some UDF Service in the k3s cluster:
 - The Firefox Browser
 
 ````
-cd ~/f5-udf-infra-server/ansible/
+cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/
 ansible-playbook playbooks/install-infra-server-udf-services.yaml
 ````
 

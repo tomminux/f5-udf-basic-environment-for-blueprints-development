@@ -1,0 +1,6 @@
+#!/bin/bash
+
+ip address add {{ secondNetIf_ip}}/24 dev {{ secondNetIf_name }}
+ip link set dev {{ secondNetIf_name }} up
+
+exit 0
