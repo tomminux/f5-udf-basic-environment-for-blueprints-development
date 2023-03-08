@@ -54,33 +54,33 @@
 
     ## ..:: INSTALLING TELEGRAF ::..
     ## ------------------------------------------------------------------------
-    - name: Adding influx apt-key
-      apt_key:
-        url: https://repos.influxdata.com/influxdb.key
-        state: present
+    #- name: Adding influx apt-key
+    #  apt_key:
+    #    url: https://repos.influxdata.com/influxdb.key
+    #    state: present
 
-    - name: Adding Influx apt reporisotries
-      shell: echo "deb https://repos.influxdata.com/ubuntu `lsb_release -cs` stable\n" > /etc/apt/sources.list.d/influxdb.list
+    #- name: Adding Influx apt reporisotries
+    #  shell: echo "deb https://repos.influxdata.com/ubuntu `lsb_release -cs` stable\n" > /etc/apt/sources.list.d/influxdb.list
 
-    - name: Upgrading all packages to the latest version
-      apt:
-        update_cache: yes
-        upgrade: dist
+    #- name: Upgrading all packages to the latest version
+    #  apt:
+    #    update_cache: yes
+    #    upgrade: dist
 
-    - name: Installing Telegraf
-      apt:
-        pkg:
-        - telegraf
+    #- name: Installing Telegraf
+    #  apt:
+    #    pkg:
+    #    - telegraf
 
-    - name: Copying Telegraf configuration file
-      template:
-        src: telegraf.conf.j2
-        dest: /etc/telegraf/telegraf.conf
+    #- name: Copying Telegraf configuration file
+    #  template:
+    #    src: telegraf.conf.j2
+    #    dest: /etc/telegraf/telegraf.conf
 
-    - name: Restarting Telegraf agent
-      service:
-        name: telegraf
-        state: restarted
+    #- name: Restarting Telegraf agent
+    #  service:
+    #    name: telegraf
+    #    state: restarted
 
     ## ..:: NFS-SERVER CONFIGURATION ::..
     ## ------------------------------------------------------------------------
