@@ -6,10 +6,15 @@
   remote_user: root
   tasks:
 
-    - name: Creating "ingress-services" namespace and secret for BIG-IP access
+    - name: Creating "ingress-services" namespace 
       become: true
       become_user: ubuntu
-      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config ; kubectl apply -f ~/f5-udf-basic-environment-for-blueprints-development/ansible/playbooks/files/k3s-manifests/CIS-Installation/0.ingress-services-configuration.yaml"
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config ; kubectl apply -f ~/f5-udf-basic-environment-for-blueprints-development/ansible/playbooks/files/k3s-manifests/CIS-Installation/0.namespace.yaml"
+
+    - name: Creating secret for BIG-IP access
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config ; kubectl apply -f ~/f5-udf-basic-environment-for-blueprints-development/ansible/playbooks/files/k3s-manifests/CIS-Installation/1.ingress-services-configuration.yaml"
 
     - name: Getting the HELM repo for BIG-IP CIS
       become: true
@@ -19,4 +24,4 @@
     - name: Installing BIG-IP CIS helm chart 
       become: true
       become_user: ubuntu
-      command: /bin/bash -c "helm install -f ~/f5-udf-basic-environment-for-blueprints-development/ansible/playbooks/files/k3s-manifests/CIS-Installation/1.cis-helm-values.yaml bigip-cis f5-stable/f5-bigip-ctlr"
+      command: /bin/bash -c "helm install -f ~/f5-udf-basic-environment-for-blueprints-development/ansible/playbooks/files/k3s-manifests/CIS-Installation/2.cis-helm-values.yaml bigip-cis f5-stable/f5-bigip-ctlr"
