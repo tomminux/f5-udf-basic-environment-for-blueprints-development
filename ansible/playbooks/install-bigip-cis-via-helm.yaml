@@ -1,0 +1,22 @@
+## ----------------------------------------------------------------------------
+## ..:: CIS Installation via HELM ::..
+## ----------------------------------------------------------------------------
+
+- hosts: infra-server
+  remote_user: root
+  tasks:
+
+  - name: Creating "ingress-services" namespace and secret for BIG-IP access
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config ; kubectl apply -f ~/f5-udf-basic-environment-for-blueprints-development/ansible/playbooks/files/k3s-manifests/CIS-Installation/0.ingress-services-configuration.yaml"
+
+  - name: Getting the HELM repo for BIG-IP CIS
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "helm repo add f5-stable https://f5networks.github.io/charts/stable"
+
+  -name: Installing BIG-IP CIS helm chart 
+      become: true
+      become_user: ubuntu
+      command: /bin/bash -c "helm install -f ~/f5-udf-basic-environment-for-blueprints-development/ansible/playbooks/files/k3s-manifests/CIS-Installation/1.cis-helm-values.yaml bigip-cis f5-stable/f5-bigip-ctlr"

@@ -267,3 +267,16 @@ Verify BGP is working with k3s, diplaying routes and BGP Neighbors
 show ip route
 show bgp neighbors
 ````
+
+### Configure BIG-IP CIS on k3s-server and BIG-IP
+
+Notes taken from the original F5 Clouddocs documentation: [CIS Installation](https://clouddocs.f5.com/containers/latest/userguide/cis-installation.html)
+
+On BIG-IP, create the "ingress-services" partition:
+
+    tmsh create auth partition ingress-services
+
+Connect to infra-server and execute the following asible playbook:
+
+    cd ~/f5-udf-basic-environment-for-blueprints-development/ansible/
+    ansible-playbook playbooks/install-bigip-cis-via-helm.yaml
