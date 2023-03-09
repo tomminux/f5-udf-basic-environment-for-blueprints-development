@@ -1,0 +1,60 @@
+## ----------------------------------------------------------------------------
+## ..:: UbuntuDev POD / Deployment ::..
+## -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu-dev
+  namespace: dev-environment
+  labels:
+    app: ubuntu-dev
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu-dev
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: ubuntu-dev
+        version: v1
+    spec:
+      containers:
+      - env:
+        image: registry.f5-udf.com:5000/paolo-dev:latest
+        imagePullPolicy: Always
+        name: ubuntu-dev
+        ports:
+        - containerPort: 22
+          protocol: TCP
+        volumeMounts:
+        - name: ubuntu-dev-persistent-storage
+          mountPath: /home/ubuntu/dev
+      volumes:
+        - name: ubuntu-dev-persistent-storage
+          hostPath:
+            path: /home/ubuntu/dockerhost-storage/ubuntu-dev
+---
+## ----------------------------------------------------------------------------
+## ..:: Grafana POD / Service Configuration ::..
+##-----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: ubuntu-dev-22
+  namespace: dev-environment
+  labels:
+    app: ubuntu-dev
+#    cis.f5.com/as3-tenant: udf-services
+#    cis.f5.com/as3-app: grafana
+#    cis.f5.com/as3-pool: grafana-pool-3000
+spec:
+  type: ClusterIP
+  ports:
+  - name: ubuntu-dev-22
+    port: 22
+    protocol: TCP
+  selector:
+      app: ubuntu-dev
