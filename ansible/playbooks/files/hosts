@@ -22,6 +22,7 @@ ff02::3 ip6-allhosts
 
 10.1.20.4       infra-server-host.f5-udf.com        infra-server-host
 10.1.20.5       bigip-cis-internal.f5-udf.com       bigip-cis-internal
+10.1.20.20		gitlab.f5-udf.com					gitlab
 10.1.20.30      registry.f5-udf.com                 registry
 10.1.20.60	    k3s-server.f5-udf.com               k3s-server
 10.1.20.100     coder-server.f5-udf.com             coder-server
