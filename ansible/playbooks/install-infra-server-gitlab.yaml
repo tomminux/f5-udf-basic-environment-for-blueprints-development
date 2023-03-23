@@ -43,4 +43,4 @@
     - name: Starting Docker Containers
       become: yes
       become_user: ubuntu
-      command: /home/ubuntu/startGitlan.sh
+      command: /home/ubuntu/startGitlab.sh
