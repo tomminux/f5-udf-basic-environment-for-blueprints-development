@@ -1,0 +1,46 @@
+## ----------------------------------------------------------------------------
+## ..:: infra-server installation ::..
+## ----------------------------------------------------------------------------
+
+- hosts: infra-server
+  remote_user: root
+  tasks:
+
+    ## ..:: Gitlan in a container ::..
+    ## ----------------------------------------------------------------------------
+
+    - name: Registry Docker storage configuration - config dir
+      file:
+        path: /home/ubuntu/dockerhost-storage/gitlab/config
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Registry Docker storage configuration - logs dir
+      file:
+        path: /home/ubuntu/dockerhost-storage/gitlab/logs
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Registry Docker storage configuration - data dirs
+      file:
+        path: /home/ubuntu/dockerhost-storage/gitlab/data
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    ## Docker Registry startup file
+    - name: Copying Docker startup file on ubuntu home dir 
+      copy:
+        src: docker-files/startGitlab.sh
+        dest: /home/ubuntu/startGitlab.sh
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    ## Starting Docker Containers
+    - name: Starting Docker Containers
+      become: yes
+      become_user: ubuntu
+      command: /home/ubuntu/startGitlan.sh
