@@ -33,7 +33,7 @@
         path: /etc/ssh/sshd_config
         line: ListenAddress 10.1.1.4
   
-      - name: Restart service ssh
+    - name: Restart service ssh
       service:
         name: ssh
         state: restarted
