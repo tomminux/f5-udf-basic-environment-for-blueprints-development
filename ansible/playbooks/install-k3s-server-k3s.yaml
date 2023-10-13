@@ -61,7 +61,7 @@
     - name: Installing -k3s-
       become: true
       become_user: ubuntu
-      command: /bin/bash -c 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--flannel-backend=none --cluster-cidr=10.243.0.0/16 --disable-network-policy --disable=traefik" sh -'
+      command: /bin/bash -c 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--cluster-cidr=10.243.0.0/16 --disable-network-policy --disable=traefik" sh -'
       args: 
          chdir: /home/ubuntu/
 
@@ -98,64 +98,3 @@
         regexp: '127.0.0.1' 
         line: '    server: https://{{ ansible_host }}:6443'
         backrefs: yes
-
-    ## Installing CALICO Overlay network 
-    - name: Downloading -Calico- Manifest file
-      get_url:
-        url: https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
-        dest: /home/ubuntu/calico-k3s.yaml
-        mode: '0644'
-
-    - name: Configure Calico to use 10.244.0.0 POD Network - Step 1
-      lineinfile: 
-        dest: /home/ubuntu/calico-k3s.yaml
-        regexp: 'CALICO_IPV4POOL_CIDR' 
-        line: '            - name: CALICO_IPV4POOL_CIDR'
-        backrefs: yes
-
-    - name: Configure Calico to use 10.244.0.0 POD Network - Step 2
-      lineinfile: 
-        dest: /home/ubuntu/calico-k3s.yaml
-        regexp: '192.168.0.0/16' 
-        line: '              value: "10.244.0.0/16"'
-        backrefs: yes
-
-    - name: Apply Calico Overlay Networking Configuration
-      become: true
-      become_user: ubuntu
-      command: /bin/bash -c "export KUBECONFIG=/home/ubuntu/.kube/config ; kubectl apply -f ~/calico-k3s.yaml"
-
-    ## Configuring CALICO for BGP with BIG-IP
-    - name: Creating /etc/calico directory
-      file:
-        path: /etc/calico
-        state: directory
-
-    - name: Downloading calicoctl executable installation file 
-      get_url:
-        url: https://github.com/projectcalico/calico/releases/download/v3.25.0/calicoctl-linux-amd64
-        dest: /usr/local/bin/calicoctl
-        mode: '0755'
- 
-    - name: Copy calico configuration files  
-      copy:
-        src: k3s-manifests/calico-overlay/{{ item }}
-        dest: /etc/calico/
-      with_items:
-        - calicoctl-k3s.cfg
-        - bgpConfiguration-k3s.yaml
-
-    - name: Copying BIGIP BGP Peer configuration file
-      template:
-        src: bigipPeerConfiguration-k3s.yaml.j2
-        dest: /etc/calico/bigipPeerConfiguration-k3s.yaml
-
-    - name: Configuring Calico BGP on k3s cluster
-      become: yes
-      become_user: ubuntu
-      command: calicoctl create -c /etc/calico/calicoctl-k3s.cfg  -f /etc/calico/bgpConfiguration-k3s.yaml
-
-    - name: Adding BGIP bigip-security as a BGPPeer
-      become: yes
-      become_user: ubuntu
-      command: calicoctl create -c /etc/calico/calicoctl-k3s.cfg -f /etc/calico/bigipPeerConfiguration-k3s.yaml
