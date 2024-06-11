@@ -53,22 +53,22 @@
 
     ## ..:: Installing Kubernetes' kubectl command ::..
     ## ------------------------------------------------------------------------
-    - name: adding Kubernetes apt-key
-      apt_key:
-        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-        state: present
+    #- name: adding Kubernetes apt-key
+    #  apt_key:
+    #    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    #    state: present
 
-    - name: adding Kubernetes' APT repository
-      apt_repository:
-       repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
-       state: present
-       filename: 'kubernetes'
+    #- name: adding Kubernetes' APT repository
+    #  apt_repository:
+    #   repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    #   state: present
+    #   filename: 'kubernetes'
 
-    - name: installing kubectl
-      apt:
-        name: kubectl
-        state: present
-        update_cache: true
+    #- name: installing kubectl
+    #  apt:
+    #    name: kubectl
+    #    state: present
+    #    update_cache: true
 
     ## ..:: INSTALLING TELEGRAF ::..
     ## ------------------------------------------------------------------------
